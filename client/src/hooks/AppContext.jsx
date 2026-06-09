@@ -9,7 +9,7 @@ export const AuthProvider=({children})=>{
     const [authUser, setAuthUser] = useState(null);
     const [onlineUser, setOnlineUser] = useState([]);
     const [socket, setSocket] = useState(null);
-    const backendUrl='http://localhost:3000';
+    const backendUrl=import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
     axios.defaults.baseURL=backendUrl;
     axios.defaults.withCredentials=true;
     const navigate=useNavigate();
