@@ -4,7 +4,6 @@ import bcrypt from 'bcryptjs';
 import cloudinary from '../config/cloudinary.js';
 
 export async function signup(req, res) {
-    console.log(req.body)
     const { fullName, email, password, bio } = req.body;
     try {
         if (!fullName || !email || !password || !bio) {
@@ -27,8 +26,8 @@ export async function signup(req, res) {
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: false,
-            sameSite: "lax",
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
         const safeUser = {
@@ -79,8 +78,8 @@ export async function login(req, res) {
         };
         res.cookie("token", token, {
             httpOnly: true,
-            secure: false,
-            sameSite: "lax",
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
         return res.status(200).json({
