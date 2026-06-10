@@ -1,5 +1,6 @@
 # Real-Time Chat Application
 
+Visit this link to checkout the application - https://chat-app-three-wine-46.vercel.app/
 A full-stack real-time chat application that allows users to communicate instantly with a modern and responsive user interface. The app includes secure authentication, live messaging, online user tracking, unseen message notifications, and profile management.
 
 ## Features
