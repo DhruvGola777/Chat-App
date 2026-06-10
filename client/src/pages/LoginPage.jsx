@@ -67,7 +67,7 @@ const LoginPage = () => {
         </div>
         <div className='flex flex-col gap-2'>
           {currState ==="Sign up" ? (
-            <p className='text-sm text-gray-300'>Already have an Acoount?<span onClick={()=>{setCurrState("Login"); setIsDateSubmitted(false)}} className='font-medium text-violet-500 cursor-pointer'>Login Here</span></p>
+            <p className='text-sm text-gray-300'>Already have an Account?<span onClick={()=>{setCurrState("Login"); setIsDateSubmitted(false)}} className='font-medium text-violet-500 cursor-pointer'>Login Here</span></p>
           )
           :
           (
