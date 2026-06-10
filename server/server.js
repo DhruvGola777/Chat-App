@@ -63,7 +63,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/messages', messageRouter)
 
 //Database Conncection
-await ConnectDB();
+// await ConnectDB();
 const PORT = process.env.PORT || 3000;
 
 // Starting the server
