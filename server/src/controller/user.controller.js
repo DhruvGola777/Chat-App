@@ -26,8 +26,8 @@ export async function signup(req, res) {
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            secure: true, // Always true for cross-site cookies
+            sameSite: "none", // Required for cross-site cookies (Vercel to Render)
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
         const safeUser = {
@@ -78,8 +78,8 @@ export async function login(req, res) {
         };
         res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            secure: true,
+            sameSite: "none",
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
         return res.status(200).json({
@@ -118,8 +118,11 @@ export async function updateProfile(req, res) {
     }
 }
 export async function logout(req, res) {
-    const token = req.cookies.token;
-    res.clearCookie("token", token)
+    res.clearCookie("token", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none"
+    })
     return res.status(200).json({
         success: true,
         message: "user logged out successfully"
