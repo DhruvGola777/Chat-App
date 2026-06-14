@@ -36,7 +36,7 @@ export const AuthProvider=({children})=>{
                 navigate('/')
             }
             else{
-                toast.error(error.message)
+                toast.error(data.message)
             }
         } catch (error) {
             toast.error(error.message)

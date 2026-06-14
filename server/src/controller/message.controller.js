@@ -7,6 +7,7 @@ export async function getUserForSidebar(req, res) {
     try {
         const  userId  = req.user._id;
         const filteredUsers = await userModel.find({ _id: { $ne: userId } }).select("-password");
+        console.log(`Fetched ${filteredUsers.length} users for sidebar for user ${userId}`);
 
         const unseenMessages = {};
         const promises = filteredUsers.map(async (user) => {
