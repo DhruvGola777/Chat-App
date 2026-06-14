@@ -7,6 +7,7 @@ const Sidebar = () => {
     const {getUsers,users,selectedUser,setSelectedUser,setunseenMessages,unseenMessages}=useContext(ChatContext)
     const {logout ,onlineUser,authUser}=useContext(AuthContext);
     const [input, setInput] = useState("");
+    const [showMenu, setShowMenu] = useState(false);
     const filteredUsers=input ? users.filter((user)=>user.fullName.toLowerCase().includes(input.toLowerCase())):users
     const navigate = useNavigate();
     useEffect(()=>{
@@ -19,12 +20,12 @@ const Sidebar = () => {
             <div className='pb-5'>
                 <div className='flex justify-between items-center'>
                     <img src={assets.logo} alt="logo" className='max-w-40' />
-                    <div className='relative py-2 group'>
-                        <img src={assets.menu_icon} alt="Menu" className='max-h-5 cursor-pointer' />
-                        <div className='absolute top-full right-0 z-20 w-32 p-5 rounded-md bg-[#282142] border border-gray-600 text-gray-100 hidden group-hover:block'>
-                            <p onClick={() => navigate('/profile')} className='cursor-pointer text-sm'>Edit Profile</p>
+                    <div className='relative py-2'>
+                        <img onClick={() => setShowMenu(prev => !prev)} src={assets.menu_icon} alt="Menu" className='max-h-5 cursor-pointer' />
+                        <div className={`absolute top-full right-0 z-20 w-32 p-5 rounded-md bg-[#282142] border border-gray-600 text-gray-100 ${showMenu ? 'block' : 'hidden'}`}>
+                            <p onClick={() => {navigate('/profile'); setShowMenu(false)}} className='cursor-pointer text-sm'>Edit Profile</p>
                             <hr className='my-2 border-t border-gray-500' />
-                            <p onClick={()=>logout()} className='cursor-pointer text-sm text-red-500'>Logout</p>
+                            <p onClick={()=>{logout(); setShowMenu(false)}} className='cursor-pointer text-sm text-red-500'>Logout</p>
                         </div>
                     </div>
                 </div>
@@ -35,7 +36,7 @@ const Sidebar = () => {
             </div>
             <div className='flex flex-col'>
                 {filteredUsers.map((user, index) => (
-                    <div onClick={()=>{setSelectedUser(user);setunseenMessages(prev=>({...prev,[user._id]:0}))}} key={index} className={`relative flex items-center gap-2 p-2 rounded cursor-pointer max-sm:text-sm ${selectedUser ?._id===user._id && 'bg-[#282142]/50'} `}>
+                    <div onClick={()=>{setSelectedUser(user);setunseenMessages(prev=>({...prev,[user._id]:0}))}} key={index} className={`relative flex items-center gap-2 p-2 rounded-[15px] cursor-pointer max-sm:text-sm ${selectedUser ?._id===user._id && 'bg-[#1d1b1b]'} `}>
                         <img src={user?.profilePic || assets.avatar_icon} alt="" className='w-8.75 aspect-square rounded-full' />
                         <div className='flex flex-col leading-5'>
                             <p>{user.fullName}</p>
