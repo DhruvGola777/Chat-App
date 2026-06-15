@@ -5,7 +5,8 @@ const messageSchema = new mongoose.Schema({
     receiverId: { type: mongoose.Schema.Types.ObjectId, ref: "user", required: true },
     text: { type: String },
     image: { type: String },
-    seen: { type: Boolean, default: false }
+    seen: { type: Boolean, default: false },
+    isDeleted: { type: Boolean, default: false }
 },{timestamps:true})
 
 const messageModel = mongoose.model("message", messageSchema);

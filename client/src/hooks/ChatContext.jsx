@@ -10,6 +10,7 @@ export const ChatProvider= ({children}) => {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
     const [unseenMessages, setunseenMessages] = useState({});
+    const [typingUsers, setTypingUsers] = useState({}); // { userId: boolean }
     const {axios,socket,authUser}=useContext(AuthContext)
 
 
@@ -74,14 +75,48 @@ export const ChatProvider= ({children}) => {
     const unsubscribeFromMessages=()=>{
         if (socket) {
             socket.off("newMessage")
+            socket.off("messageDeleted")
+            socket.off("typing")
+            socket.off("stopTyping")
         }
     }
+    const deleteMessage = async (messageId) => {
+        try {
+            const { data } = await axios.delete(`/api/messages/delete/${messageId}`);
+            if (data.success) {
+                setMessages((prev) =>
+                    prev.map((msg) =>
+                        msg._id === messageId ? { ...msg, isDeleted: true } : msg
+                    )
+                );
+            }
+        } catch (error) {
+            toast.error(error.message);
+        }
+    };
     useEffect(()=>{
+        if (!socket) return;
+        socket.on("messageDeleted", ({ messageId }) => {
+            setMessages((prev) =>
+                prev.map((msg) =>
+                    msg._id === messageId ? { ...msg, isDeleted: true } : msg
+                )
+            );
+        });
+
+        socket.on("typing", ({ senderId }) => {
+            setTypingUsers(prev => ({ ...prev, [senderId]: true }));
+        });
+
+        socket.on("stopTyping", ({ senderId }) => {
+            setTypingUsers(prev => ({ ...prev, [senderId]: false }));
+        });
+
         subscribeToMessages();
         return ()=>unsubscribeFromMessages();
     },[socket,selectedUser])
 
-    const value={messages,users,selectedUser,getUsers,getMessages,sendMessages,setSelectedUser,unseenMessages,setunseenMessages}
+    const value={messages,users,selectedUser,getUsers,getMessages,sendMessages,setSelectedUser,unseenMessages,setunseenMessages, deleteMessage, typingUsers}
     
     return (<ChatContext.Provider value={value}>
         {children}

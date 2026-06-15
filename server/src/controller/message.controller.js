@@ -77,3 +77,35 @@ export async function sendMessages(req, res) {
         return res.status(400).json({ success: false, message: error.message })
     }
 }
+
+export async function deleteMessage(req, res) {
+    try {
+        const { id } = req.params;
+        const userId = req.user._id;
+
+        const message = await messageModel.findById(id);
+
+        if (!message) {
+            return res.status(404).json({ success: false, message: "Message not found" });
+        }
+
+        // Only sender can delete their own message
+        if (message.senderId.toString() !== userId.toString()) {
+            return res.status(401).json({ success: false, message: "Unauthorized to delete this message" });
+        }
+
+        message.isDeleted = true;
+        await message.save();
+
+        // Notify via socket if receiver is online
+        const receiverSocketId = userSocketMap[message.receiverId];
+        if (receiverSocketId) {
+            io.to(receiverSocketId).emit("messageDeleted", { messageId: id });
+        }
+
+        return res.status(200).json({ success: true, message: "Message deleted successfully" });
+    } catch (error) {
+        console.log(error.message);
+        return res.status(400).json({ success: false, message: error.message });
+    }
+}
