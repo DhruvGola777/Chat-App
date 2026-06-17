@@ -81,7 +81,12 @@ export const ChatProvider= ({children}) => {
         }
     }
     const deleteMessage = async (messageId) => {
+        if (!messageId) {
+            toast.error("Message ID is missing");
+            return;
+        }
         try {
+            console.log("Deleting message:", messageId);
             const { data } = await axios.delete(`/api/messages/delete/${messageId}`);
             if (data.success) {
                 setMessages((prev) =>
@@ -89,9 +94,12 @@ export const ChatProvider= ({children}) => {
                         msg._id === messageId ? { ...msg, isDeleted: true } : msg
                     )
                 );
+                toast.success("Message deleted");
             }
         } catch (error) {
-            toast.error(error.message);
+            console.error("Delete error:", error);
+            const errorMessage = error.response?.data?.message || error.message;
+            toast.error(`Delete failed: ${errorMessage}`);
         }
     };
     useEffect(()=>{

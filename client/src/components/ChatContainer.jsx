@@ -40,7 +40,12 @@ const ChatContainer = () => {
 
   // Typing indicator logic
   useEffect(() => {
-    if (!socket || !selectedUser || !input) return;
+    if (!socket || !selectedUser) return;
+
+    if (input.trim() === "") {
+        socket.emit("stopTyping", { senderId: authUser._id, receiverId: selectedUser._id });
+        return;
+    }
 
     socket.emit("typing", { senderId: authUser._id, receiverId: selectedUser._id });
 

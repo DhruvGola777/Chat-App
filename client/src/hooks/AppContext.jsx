@@ -64,16 +64,39 @@ export const AuthProvider=({children})=>{
         checkAuth();
     },[])
     const connectSocket=(user)=>{
-        if (!user || (socket?.connected)) return;
+        if (!user) return;
+        
+        // If socket is already connected for the same user, don't reconnect
+        if (socket?.connected && socket.io.opts.query.userId === user._id) {
+            console.log("Socket already connected for user:", user._id);
+            return;
+        }
+
+        // Disconnect existing socket if any
+        if (socket) {
+            socket.disconnect();
+        }
+
+        console.log("Connecting socket to:", backendUrl, "for user:", user._id);
         const newSocket=io(backendUrl,{
             query:{
                 userId:user._id
             },
-            transports: ["websocket"]
+            transports: ["websocket", "polling"], // Allow polling fallback
+            withCredentials: true
         });
-        // newSocket.connect();
+
+        newSocket.on("connect", () => {
+            console.log("Socket connected successfully with ID:", newSocket.id);
+        });
+
+        newSocket.on("connect_error", (error) => {
+            console.error("Socket connection error:", error);
+        });
+
         setSocket(newSocket)
         newSocket.on("getOnlineUsers",(userIds)=>{
+            console.log("Received online users:", userIds);
             setOnlineUser(userIds);
         })
     }
