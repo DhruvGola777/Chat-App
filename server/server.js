@@ -51,37 +51,38 @@ io.on("connection", (socket) => {
         return;
     }
 
-    if (!userSocketMap[userId]) {
-        userSocketMap[userId] = [];
+    if (!userSocketMap[String(userId)]) {
+        userSocketMap[String(userId)] = [];
     }
 
-    userSocketMap[userId].push(socket.id);
+    userSocketMap[String(userId)].push(socket.id);
 
     emitOnlineUsers();
 
     socket.on("typing", ({ senderId, receiverId }) => {
-        const receiverSocketId = userSocketMap[receiverId];
+        const receiverSocketId = userSocketMap[String(receiverId)];
         if (receiverSocketId) {
             io.to(receiverSocketId).emit("typing", { senderId });
         }
     });
 
     socket.on("stopTyping", ({ senderId, receiverId }) => {
-        const receiverSocketId = userSocketMap[receiverId];
+        const receiverSocketId = userSocketMap[String(receiverId)];
         if (receiverSocketId) {
             io.to(receiverSocketId).emit("stopTyping", { senderId });
         }
     });
 
     socket.on("disconnect", () => {
-        if (!userSocketMap[userId]) return;
+        const strUserId = String(userId);
+        if (!userSocketMap[strUserId]) return;
 
-        userSocketMap[userId] = userSocketMap[userId].filter(
+        userSocketMap[strUserId] = userSocketMap[strUserId].filter(
             (id) => id !== socket.id
         );
 
-        if (userSocketMap[userId].length === 0) {
-            delete userSocketMap[userId];
+        if (userSocketMap[strUserId].length === 0) {
+            delete userSocketMap[strUserId];
         }
 
         emitOnlineUsers();

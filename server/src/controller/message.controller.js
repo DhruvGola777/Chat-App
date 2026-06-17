@@ -90,7 +90,7 @@ export async function deleteMessage(req, res) {
         }
 
         // Only sender can delete their own message
-        if (message.senderId.toString() !== userId.toString()) {
+        if (String(message.senderId) !== String(userId)) {
             return res.status(401).json({ success: false, message: "Unauthorized to delete this message" });
         }
 
@@ -98,9 +98,9 @@ export async function deleteMessage(req, res) {
         await message.save();
 
         // Notify via socket if receiver is online
-        const receiverSocketId = userSocketMap[message.receiverId];
+        const receiverSocketId = userSocketMap[String(message.receiverId)];
         if (receiverSocketId) {
-            io.to(receiverSocketId).emit("messageDeleted", { messageId: id });
+            io.to(receiverSocketId).emit("messageDeleted", { messageId: String(id) });
         }
 
         return res.status(200).json({ success: true, message: "Message deleted successfully" });

@@ -32,10 +32,15 @@ import userModel from '../models/user.model.js';
 // }
 export const protectRoutes = async (req, res, next) => {
     try {
-        const token = req.cookies.token;
+        let token = req.cookies.token;
+
+        // Fallback to Authorization header if cookie is blocked (common on mobile)
+        if (!token && req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
+            token = req.headers.authorization.split(" ")[1];
+        }
 
         if (!token) {
-            return res.status(401).json({ message: "No token" });
+            return res.status(401).json({ success: false, message: "No token provided" });
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
@@ -45,7 +50,7 @@ export const protectRoutes = async (req, res, next) => {
             .select("-password");
 
         if (!user) {
-            return res.status(401).json({ message: "User not found" });
+            return res.status(401).json({ success: false, message: "User not found" });
         }
 
         req.user = user;
@@ -54,6 +59,6 @@ export const protectRoutes = async (req, res, next) => {
 
     } catch (error) {
         console.log("AUTH ERROR:", error.message);
-        return res.status(401).json({ message: "Invalid token" });
+        return res.status(401).json({ success: false, message: "Invalid or expired token" });
     }
 };

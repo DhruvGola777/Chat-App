@@ -16,6 +16,10 @@ export const AuthProvider=({children})=>{
 
     const checkAuth=async () => {
         try {
+            const token = localStorage.getItem("chat-token");
+            if (token) {
+                axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            }
             const {data}=await axios.get("/api/auth/check")
             if (data.success) {
                 setAuthUser(data.user);
@@ -23,6 +27,8 @@ export const AuthProvider=({children})=>{
             }
         } catch (error) {
             console.log("Not authenticated");
+            localStorage.removeItem("chat-token");
+            delete axios.defaults.headers.common['Authorization'];
         }
     }
     const login=async (state,credentials) => {
@@ -30,8 +36,11 @@ export const AuthProvider=({children})=>{
             const {data}=await axios.post(`${backendUrl}/api/auth/${state}`,credentials,{withCredentials:true});
             if (data.success) {
                 setAuthUser(data.user);
+                if (data.token) {
+                    localStorage.setItem("chat-token", data.token);
+                    axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+                }
                 connectSocket(data.user);
-                // setToken(data.token)
                 toast.success(data.message)
                 navigate('/')
             }
@@ -47,6 +56,8 @@ export const AuthProvider=({children})=>{
         setAuthUser(null);
         setOnlineUser([]);
         socket?.disconnect()
+        localStorage.removeItem("chat-token");
+        delete axios.defaults.headers.common['Authorization'];
         toast.success("Logged out successfully");
     }
     const updateProfile=async (body) => {
